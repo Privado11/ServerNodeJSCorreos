@@ -46,5 +46,5 @@ app.post("/enviar-correo", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor en ejecución en http://localhost:${port}`);
+  console.log(`Servidor en ejecución`);
 });
