@@ -14,6 +14,10 @@ app.get("/", (req, res) => {
   res.send("<p>¡Servidor activo!</p>");
 });
 
+app.get("/ping", (req, res) => {
+  res.send("Ping exitoso");
+});
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
