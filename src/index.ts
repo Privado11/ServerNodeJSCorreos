@@ -1,14 +1,16 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
+const sgMail = require("@sendgrid/mail");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
+app.use(bodyParser.json());
+
 const port = 3000;
 
-app.use(bodyParser.json());
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 app.get("/", (req, res) => {
   res.send("<p>¡Servidor activo!</p>");
@@ -18,36 +20,44 @@ app.get("/ping", (req, res) => {
   res.send("Ping exitoso");
 });
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    refreshToken: process.env.REFRESH_TOKEN,
-  },
-});
-
 app.post("/enviar-correo", async (req, res) => {
   try {
     const { name, lastName, email, phone, message } = req.body;
-
     const fullName = `${name} ${lastName}`;
-    const userEmail = email;
-    const userPhone = phone;
-    const userMessage = message;
 
-    const data = await transporter.sendMail({
-      from: fullName,
-      to: "portafoliopersonal22@gmail.com",
+    const msg = {
+      to: process.env.EMAIL_TO,
+      from: "Portafolio Personal <contacto@walterjimenez.online>",
       subject: "¡Te han contactado!",
-      html: `<p><strong>Nombre: ${fullName}</strong></p>
-            <p><strong>Correo: ${userEmail}</strong></p>
-            <p><strong>Teléfono: ${userPhone}</strong></p>
-            <p><strong>Mensaje: ${userMessage}</strong></p>`,
-    });
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+          <h2 style="color: #2a9d8f;">Nuevo mensaje desde tu Portafolio</h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <tr>
+              <td style="padding: 8px; font-weight: bold; width: 120px;">Nombre:</td>
+              <td style="padding: 8px;">${fullName}</td>
+            </tr>
+            <tr style="background-color: #f4f4f4;">
+              <td style="padding: 8px; font-weight: bold;">Correo:</td>
+              <td style="padding: 8px;">${email}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-weight: bold;">Teléfono:</td>
+              <td style="padding: 8px;">${phone}</td>
+            </tr>
+            <tr style="background-color: #f4f4f4;">
+              <td style="padding: 8px; font-weight: bold;">Mensaje:</td>
+              <td style="padding: 8px;">${message}</td>
+            </tr>
+          </table>
+          <p style="margin-top: 20px; font-size: 0.9em; color: #555;">
+            Este mensaje fue enviado desde tu formulario de contacto en <strong>Portafolio Personal</strong>.
+          </p>
+        </div>
+      `,
+    };
+
+    await sgMail.send(msg);
     res.status(200).send("Correo enviado con éxito");
   } catch (error) {
     console.error("Error al enviar el correo:", error);
@@ -56,5 +66,5 @@ app.post("/enviar-correo", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor en ejecución`);
+  console.log(`Servidor en ejecución en http://localhost:${port}`);
 });
