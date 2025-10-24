@@ -4,6 +4,10 @@
   "description": "",
   "type": "commonjs",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
   "scripts": {
     "dev": "nodemon --exec ./node_modules/.bin/ts-node src/index",
     "build": "npm install && tsc",
