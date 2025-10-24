@@ -1,8 +1,12 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
-const sgMail = require("@sendgrid/mail");
-require("dotenv").config();
+import express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import sgMail from "@sendgrid/mail";
+import dotenv from "dotenv";
+
+import type { Request, Response } from "express"; 
+
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -10,23 +14,31 @@ app.use(bodyParser.json());
 
 const port = 3000;
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-app.get("/", (req, res) => {
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const EMAIL_TO = process.env.EMAIL_TO;
+
+if (!SENDGRID_API_KEY)
+  throw new Error("SENDGRID_API_KEY no está definido en .env");
+if (!EMAIL_TO) throw new Error("EMAIL_TO no está definido en .env");
+
+sgMail.setApiKey(SENDGRID_API_KEY);
+
+app.get("/", (req: Request, res: Response) => {
   res.send("<p>¡Servidor activo!</p>");
 });
 
-app.get("/ping", (req, res) => {
+app.get("/ping", (req: Request, res: Response) => {
   res.send("Ping exitoso");
 });
 
-app.post("/enviar-correo", async (req, res) => {
+app.post("/enviar-correo", async (req: Request, res: Response) => {
   try {
     const { name, lastName, email, phone, message } = req.body;
     const fullName = `${name} ${lastName}`;
 
     const msg = {
-      to: process.env.EMAIL_TO,
+      to: EMAIL_TO,
       from: "Portafolio Personal <contacto@walterjimenez.online>",
       subject: "¡Te han contactado!",
       html: `
