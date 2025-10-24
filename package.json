@@ -2,7 +2,7 @@
   "name": "servernodejs-correos",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --exec ./node_modules/.bin/ts-node src/index",
